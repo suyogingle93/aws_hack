@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-harness"
+version = "0.1.0"
+description = "Control layer for CLI and desktop AI agents"
+requires-python = ">=3.11"
+dynamic = ["dependencies"]
+
+[project.scripts]
+harness = "harness.cli:app"
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.packages.find]
+include = ["harness*"]

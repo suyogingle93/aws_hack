@@ -1,0 +1,46 @@
+.PHONY: setup test serve serve-aws aws-setup demo-agent demo checkpoint dashboard
+
+AUDIT_TABLE ?= agent-harness-audit
+METRICS_NAMESPACE ?= AgentHarness
+
+# Separate npm cache: works even when ~/.npm contains root-owned files.
+NPM_CACHE ?= $(HOME)/.cache/npm-harness
+
+setup:
+	python3 -m venv venv
+	./venv/bin/pip install -r backend/requirements.txt
+	./venv/bin/pip install -e backend
+	cd dashboard && npm install --cache "$(NPM_CACHE)" --no-fund --no-audit
+
+test:
+	cd backend && ../venv/bin/python -m pytest
+	cd dashboard && npm test
+
+# Dashboard dev server on http://localhost:5173 (needs `make serve` running).
+dashboard:
+	cd dashboard && npm run dev
+
+# Start the gateway + control API (leave running in its own terminal).
+serve:
+	./venv/bin/harness serve
+
+# One-time: create the DynamoDB audit table in your AWS account (needs AWS credentials).
+aws-setup:
+	./venv/bin/harness aws-setup --table "$(AUDIT_TABLE)"
+
+# Like `serve`, plus the DynamoDB audit mirror and CloudWatch metrics (needs AWS credentials).
+serve-aws:
+	./venv/bin/harness serve --dynamodb-table "$(AUDIT_TABLE)" --cloudwatch-namespace "$(METRICS_NAMESPACE)"
+
+# Run the demo agent directly (no harness) to confirm Bedrock access.
+demo-agent:
+	./venv/bin/python backend/demo/demo_agent.py
+
+# Run the demo agent under the harness (needs `make serve` in another terminal).
+demo:
+	./venv/bin/harness run -- ./venv/bin/python backend/demo/demo_agent.py
+
+# Scripted, self-contained demo check: launch -> traffic -> block -> stop.
+# Uses its own ports and state, so it can run alongside `make serve`.
+checkpoint:
+	./venv/bin/python backend/demo/checkpoint.py
