@@ -1,0 +1,11 @@
+boto3
+python-dotenv
+httpx
+pyyaml
+pydantic
+fastapi
+uvicorn[standard]
+typer
+mitmproxy
+pytest
+pytest-asyncio
