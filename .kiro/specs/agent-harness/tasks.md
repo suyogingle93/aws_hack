@@ -74,14 +74,14 @@ Ordering goal: get the thin demo path (launch, proxy, block, stop) working first
   - Add a policy file watcher for hot reload
   - _Requirements: 2.1, 4.5, 9.2_
 
-- [ ] 9. Implement the launcher CLI
-  - [ ] 9.1 `harness run -- <cmd>`: health check, register run, build proxy and CA env vars, spawn in a new session, stream output, report exit code
+- [x] 9. Implement the launcher CLI
+  - [x] 9.1 `harness run -- <cmd>`: health check, register run, build proxy and CA env vars, spawn in a new session, stream output, report exit code
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
-  - [ ] 9.2 `harness tail <run-id>`: stream colored events from the WebSocket
+  - [x] 9.2 `harness tail <run-id>`: stream colored events from the WebSocket
     - _Requirements: 3.5_
-  - [ ] 9.3 `harness stop <run-id>` and Ctrl+C forwarding
+  - [x] 9.3 `harness stop <run-id>` and Ctrl+C forwarding
     - _Requirements: 5.1_
-  - [ ] 9.4 Write an end-to-end test: launch a stub agent through the CLI and verify the run lifecycle
+  - [x] 9.4 Write an end-to-end test: launch a stub agent through the CLI and verify the run lifecycle
     - _Requirements: 1.1, 1.4_
 
 - [ ] 10. Checkpoint: demo path works headless
