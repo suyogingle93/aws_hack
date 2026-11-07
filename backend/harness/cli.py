@@ -53,6 +53,10 @@ def format_event(e: dict, color: bool = True) -> str | None:
 
     if kind == "request":
         decision = e.get("decision")
+        if decision == "allowed" and not e.get("status_code"):
+            # The gateway sends an update with the status once the response (or an upstream
+            # error) arrives; show the request once, then.
+            return None
         if decision == "allowed":
             badge = paint("ALLOW  ", "green", True)
         elif decision == "blocked":

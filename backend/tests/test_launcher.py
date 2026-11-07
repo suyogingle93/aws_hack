@@ -108,6 +108,13 @@ def test_blocked_without_rule_falls_back_to_reason():
     assert "(rate limit exceeded)" in line
 
 
+def test_allowed_request_is_shown_once_when_its_response_arrives():
+    sent = ev(decision="allowed", method="GET", host="api.github.com", path="/zen")
+    assert format_event(sent, color=False) is None
+    assert "200" in format_event({**sent, "status_code": 200}, color=False)
+    assert "502" in format_event({**sent, "status_code": 502}, color=False)
+
+
 def test_pending_and_tool_and_truncation():
     line = format_event(ev(method="POST", host="h", path="/" + "a" * 200, tool="delete_repo"), color=False)
     assert "..." in line and "tool=delete_repo" in line and len(line) < 200

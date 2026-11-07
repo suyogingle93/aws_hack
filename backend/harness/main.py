@@ -87,6 +87,10 @@ class Backend:
         confdir = s.home / "mitmproxy"
         opts = options.Options(listen_host=s.proxy_host, listen_port=s.proxy_port, confdir=str(confdir))
         self._master = DumpMaster(opts, with_termlog=False, with_dumper=False)
+        # Lazy: only connect upstream once a request is allowed. With the default (eager),
+        # mitmproxy would open a TCP+TLS connection to a blocked host on CONNECT.
+        # (The option is registered by the proxyserver addon, so set it after the master exists.)
+        opts.update(connection_strategy="lazy")
         self._master.addons.add(self.gateway)
         self._master_task = asyncio.create_task(self._run_master(), name="mitmproxy")
         proxyserver = self._master.addons.get("proxyserver")

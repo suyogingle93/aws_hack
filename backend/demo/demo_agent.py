@@ -26,6 +26,8 @@ ALLOWED_MODEL = os.getenv("BEDROCK_MODEL_ID", "us.meta.llama4-scout-17b-instruct
 # A second model the policy should NOT allow.
 BLOCKED_MODEL = os.getenv("BEDROCK_BLOCKED_MODEL_ID", "amazon.titan-text-lite-v1")
 PAUSE = float(os.getenv("DEMO_PAUSE", "2"))
+# Set when no AWS credentials are available; Bedrock steps are skipped instead of erroring.
+SKIP_BEDROCK = os.getenv("DEMO_SKIP_BEDROCK") == "1"
 
 # boto3 honors HTTPS_PROXY / AWS_CA_BUNDLE from the environment automatically.
 client = boto3.client(
@@ -44,6 +46,9 @@ def step(msg: str) -> None:
 
 
 def ask_bedrock(model_id: str, prompt: str) -> None:
+    if SKIP_BEDROCK:
+        print(f"[bedrock:{model_id}] skipped (DEMO_SKIP_BEDROCK=1)", flush=True)
+        return
     try:
         resp = client.converse(
             modelId=model_id,

@@ -84,7 +84,7 @@ Ordering goal: get the thin demo path (launch, proxy, block, stop) working first
   - [x] 9.4 Write an end-to-end test: launch a stub agent through the CLI and verify the run lifecycle
     - _Requirements: 1.1, 1.4_
 
-- [ ] 10. Checkpoint: demo path works headless
+- [x] 10. Checkpoint: demo path works headless
   - Run the stack locally, launch a stub agent, confirm traffic is logged, a disallowed request is blocked, and stop kills the agent. Ask the user if questions arise.
 
 - [ ] 11. Build the demo agent

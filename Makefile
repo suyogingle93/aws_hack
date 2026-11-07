@@ -1,4 +1,4 @@
-.PHONY: setup test serve demo-agent demo
+.PHONY: setup test serve demo-agent demo checkpoint
 
 setup:
 	python3 -m venv venv
@@ -19,3 +19,8 @@ demo-agent:
 # Run the demo agent under the harness (needs `make serve` in another terminal).
 demo:
 	./venv/bin/harness run -- ./venv/bin/python backend/demo/demo_agent.py
+
+# Scripted, self-contained demo check: launch -> traffic -> block -> stop.
+# Uses its own ports and state, so it can run alongside `make serve`.
+checkpoint:
+	./venv/bin/python backend/demo/checkpoint.py

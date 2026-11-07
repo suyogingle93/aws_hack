@@ -141,6 +141,26 @@ async def test_end_to_end_allow_block_and_control_plane_protection(backend):
     assert backend.upstream.seen == ["/ok/1"]
 
 
+async def test_blocked_https_host_is_never_contacted(backend):
+    """With eager upstream connections mitmproxy would connect on CONNECT; we must not."""
+    listener = socket.socket()
+    listener.bind(("127.0.0.1", 0))
+    listener.listen()
+    listener.setblocking(False)
+    port = listener.getsockname()[1]
+    rec, token = backend.runs.register(["agent"], "/")
+    proxy = f"http://{rec.id}:{token}@127.0.0.1:{backend.proxy_port}"
+    try:
+        async with httpx.AsyncClient(proxy=proxy, verify=str(backend.ca_path), trust_env=False, timeout=10) as c:
+            r = await c.get(f"https://127.0.0.1:{port}/nope")  # denied by the default rule
+        assert r.status_code == 403
+        await asyncio.sleep(0.2)
+        with pytest.raises(BlockingIOError):
+            listener.accept()  # nothing ever connected to the blocked host
+    finally:
+        listener.close()
+
+
 async def test_policy_file_edit_takes_effect_live(backend, tmp_path):
     rec, token = backend.runs.register(["agent"], "/")
     proxy = f"http://{rec.id}:{token}@127.0.0.1:{backend.proxy_port}"
