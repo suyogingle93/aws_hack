@@ -1,0 +1,33 @@
+# Demo policy for the Agent Harness.
+# Default deny: anything not explicitly allowed is blocked.
+default: deny
+
+rate_limit:
+  requests_per_minute: 120
+
+rules:
+  # Only one Bedrock model is approved. Any other model hits the default deny.
+  - id: allow-bedrock-approved-model
+    action: allow
+    host: "bedrock-runtime.*.amazonaws.com"
+    path: "/model/us.meta.llama4-scout-17b-instruct-v1:0/*"
+    description: Approved Bedrock model (Llama 4 Scout)
+
+  - id: allow-github-read
+    action: allow
+    host: "api.github.com"
+    methods: [GET]
+    description: Read-only GitHub API
+
+  # Data exfiltration attempt: block it and stop the whole run.
+  - id: block-paste-sites
+    action: deny
+    host: "*pastebin.com"
+    terminate_on_violation: true
+    description: Paste sites are an exfiltration path
+
+  # Dangerous MCP tools are denied wherever they appear.
+  - id: block-destructive-tools
+    action: deny
+    mcp_tool: "delete_*"
+    description: Destructive MCP tools

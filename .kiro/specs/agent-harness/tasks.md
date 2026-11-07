@@ -7,18 +7,18 @@ Ordering goal: get the thin demo path (launch, proxy, block, stop) working first
   - Add a `Makefile` with `dev`, `test`, `demo` targets and a `.gitignore`
   - _Requirements: 8.3_
 
-- [ ] 2. Implement the policy engine
-  - [ ] 2.1 Define Pydantic models for `Rule`, `Policy`, `Decision` and YAML loading with validation
+- [x] 2. Implement the policy engine
+  - [x] 2.1 Define Pydantic models for `Rule`, `Policy`, `Decision` and YAML loading with validation
     - _Requirements: 4.1, 4.5_
-  - [ ] 2.2 Implement evaluation: wildcard matching on host/path/method/mcp_tool, deny precedence, default action
+  - [x] 2.2 Implement evaluation: wildcard matching on host/path/method/mcp_tool, deny precedence, default action
     - _Requirements: 4.1, 4.2, 4.3_
-  - [ ] 2.3 Add per-run sliding-window rate limiting
+  - [x] 2.3 Add per-run sliding-window rate limiting
     - _Requirements: 4.7_
-  - [ ] 2.4 Add atomic policy swap and reload that keeps the old policy on invalid input
+  - [x] 2.4 Add atomic policy swap and reload that keeps the old policy on invalid input
     - _Requirements: 4.5, 4.6_
-  - [ ] 2.5 Write unit tests, including deny-beats-allow regardless of rule order
+  - [x] 2.5 Write unit tests, including deny-beats-allow regardless of rule order
     - _Requirements: 4.2, 4.3_
-  - [ ] 2.6 Create `policies/demo.yaml` with allow rules for Bedrock/GitHub and a deny rule with `terminate_on_violation`
+  - [x] 2.6 Create `policies/demo.yaml` with allow rules for Bedrock/GitHub and a deny rule with `terminate_on_violation`
     - _Requirements: 8.2_
 
 - [ ] 3. Implement redaction and MCP parsing
