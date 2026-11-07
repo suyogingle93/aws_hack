@@ -125,9 +125,9 @@ Ordering goal: get the thin demo path (launch, proxy, block, stop) working first
     - _Requirements: 8.3_
 
 - [ ] 14. Documentation and submission assets
-  - [ ] 14.1 Write the README: setup, architecture diagram, demo script, AWS services used, known bypass limits and mitigations, business case (who buys this and why)
+  - [x] 14.1 Write the README: setup, architecture diagram, demo script, AWS services used, known bypass limits and mitigations, business case (who buys this and why)
     - _Requirements: 8.3, 9.5_
-  - [ ] 14.2 Add `make demo` that runs the scripted flow and asserts the final state
+  - [x] 14.2 Add `make demo` that runs the scripted flow and asserts the final state
     - _Requirements: 8.4_
   - [ ] 14.3 Capture screenshots, record a short video demo, and make a logo and slides for Devpost
     - _Requirements: 8.3_

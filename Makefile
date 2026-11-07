@@ -1,4 +1,7 @@
-.PHONY: setup test serve demo-agent demo checkpoint dashboard
+.PHONY: setup test serve serve-aws aws-setup demo-agent demo checkpoint dashboard
+
+AUDIT_TABLE ?= agent-harness-audit
+METRICS_NAMESPACE ?= AgentHarness
 
 # Separate npm cache: works even when ~/.npm contains root-owned files.
 NPM_CACHE ?= $(HOME)/.cache/npm-harness
@@ -20,6 +23,14 @@ dashboard:
 # Start the gateway + control API (leave running in its own terminal).
 serve:
 	./venv/bin/harness serve
+
+# One-time: create the DynamoDB audit table in your AWS account (needs AWS credentials).
+aws-setup:
+	./venv/bin/harness aws-setup --table "$(AUDIT_TABLE)"
+
+# Like `serve`, plus the DynamoDB audit mirror and CloudWatch metrics (needs AWS credentials).
+serve-aws:
+	./venv/bin/harness serve --dynamodb-table "$(AUDIT_TABLE)" --cloudwatch-namespace "$(METRICS_NAMESPACE)"
 
 # Run the demo agent directly (no harness) to confirm Bedrock access.
 demo-agent:

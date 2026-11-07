@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Agent Harness</title>
+  <desc id="desc">A shield with a gate: agent traffic passes through one checkpoint, allowed requests continue, blocked ones stop.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#141a2b"/>
+      <stop offset="1" stop-color="#0b1020"/>
+    </linearGradient>
+    <linearGradient id="shield" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7cb4ff"/>
+      <stop offset="1" stop-color="#3f7fe0"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <!-- shield -->
+  <path d="M256 70 118 124v104c0 96 58 176 138 210 80-34 138-114 138-210V124z" fill="url(#shield)"/>
+  <path d="M256 104 148 146v82c0 78 45 143 108 172 63-29 108-94 108-172v-82z" fill="#0b1020"/>
+  <!-- incoming traffic -->
+  <circle cx="190" cy="200" r="13" fill="#e7ebf3"/>
+  <circle cx="190" cy="250" r="13" fill="#e7ebf3"/>
+  <circle cx="190" cy="300" r="13" fill="#e7ebf3"/>
+  <!-- the gate -->
+  <rect x="244" y="180" width="24" height="140" rx="12" fill="#7cb4ff"/>
+  <!-- allowed: passes through -->
+  <path d="M290 222h44" stroke="#5ee08a" stroke-width="18" stroke-linecap="round"/>
+  <path d="m322 204 22 18-22 18" fill="none" stroke="#5ee08a" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- blocked: stopped -->
+  <path d="m300 266 36 36m0-36-36 36" stroke="#ff8a8a" stroke-width="18" stroke-linecap="round"/>
+</svg>
