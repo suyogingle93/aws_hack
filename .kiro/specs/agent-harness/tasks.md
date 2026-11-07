@@ -112,7 +112,7 @@ Ordering goal: get the thin demo path (launch, proxy, block, stop) working first
 - [ ] 13. Add AWS integrations
   - [x] 13.1 Implement the DynamoDB `AuditStore` (pk `run_id`, sk `ts#event_id`) and select it by config, falling back to SQLite
     - _Requirements: 6.4_
-  - [ ] 13.2 Confirm Bedrock works through the proxy
+  - [x] 13.2 Confirm Bedrock works through the proxy
     - Verify model access in the Bedrock console (Model catalog, region us-east-1) and copy the inference profile ID if one is shown
     - Run a standalone `converse` call first (no proxy), then through the harness; confirm the allow rule and that `converse_stream` is not buffered
     - Add a policy rule that allows only the chosen model path and confirm another model is blocked with a 403
