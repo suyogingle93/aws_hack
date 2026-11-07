@@ -178,6 +178,11 @@ class RunManager:
         ok = hmac.compare_digest(expected, _hash_token(token))
         return bool(state and state.token_hash and ok)
 
+    def is_running(self, run_id: str) -> bool:
+        """True while the run is active. Used for requests inside an already-authenticated tunnel."""
+        state = self._runs.get(run_id)
+        return bool(state and state.record.status == "running")
+
     # --- accounting & queries ----------------------------------------------
 
     def record_decision(self, run_id: str, allowed: bool) -> None:

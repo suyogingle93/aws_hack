@@ -43,18 +43,18 @@ Ordering goal: get the thin demo path (launch, proxy, block, stop) working first
   - [x] 5.3 Write tests that stop a real child process tree and assert it exits within 3 seconds
     - _Requirements: 5.1, 5.5_
 
-- [ ] 6. Implement the gateway
-  - [ ] 6.1 Write the mitmproxy addon: proxy auth (407 on missing/revoked credentials) in `http_connect` and `requestheaders`
+- [x] 6. Implement the gateway
+  - [x] 6.1 Write the mitmproxy addon: proxy auth (407 on missing/revoked credentials) in `http_connect` and `requestheaders`
     - _Requirements: 1.2, 2.1, 2.2, 2.3_
-  - [ ] 6.2 In `request`: build context, parse MCP, evaluate policy, return a 403 JSON response on deny, publish an event
+  - [x] 6.2 In `request`: build context, parse MCP, evaluate policy, return a 403 JSON response on deny, publish an event
     - _Requirements: 2.4, 2.5, 4.4, 3.1_
-  - [ ] 6.3 Handle `terminate_on_violation` by calling `RunManager.stop`
+  - [x] 6.3 Handle `terminate_on_violation` by calling `RunManager.stop`
     - _Requirements: 5.4_
-  - [ ] 6.4 In `response`: attach status code and size to the event; return 502 events on upstream failure
+  - [x] 6.4 In `response`: attach status code and size to the event; return 502 events on upstream failure
     - _Requirements: 3.1_
-  - [ ] 6.5 Deny agent requests addressed to the control API
+  - [x] 6.5 Deny agent requests addressed to the control API
     - _Requirements: 9.4_
-  - [ ] 6.6 Write an integration test: stub upstream server, stub agent, assert allow, block with 403 body, events emitted, and that a stopped run's token is rejected
+  - [x] 6.6 Write an integration test: stub upstream server, stub agent, assert allow, block with 403 body, events emitted, and that a stopped run's token is rejected
     - _Requirements: 2.2, 4.4, 5.2_
 
 - [ ] 7. Implement the control API
