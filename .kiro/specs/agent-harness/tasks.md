@@ -57,16 +57,16 @@ Ordering goal: get the thin demo path (launch, proxy, block, stop) working first
   - [x] 6.6 Write an integration test: stub upstream server, stub agent, assert allow, block with 403 body, events emitted, and that a stopped run's token is rejected
     - _Requirements: 2.2, 4.4, 5.2_
 
-- [ ] 7. Implement the control API
-  - [ ] 7.1 Build the FastAPI app with operator bearer-token auth, localhost binding, `/health`
+- [x] 7. Implement the control API
+  - [x] 7.1 Build the FastAPI app with operator bearer-token auth, localhost binding, `/health`
     - _Requirements: 9.1, 9.2_
-  - [ ] 7.2 Add run endpoints: register, finish, list (with allowed/blocked counts), events query, stop
+  - [x] 7.2 Add run endpoints: register, finish, list (with allowed/blocked counts), events query, stop
     - _Requirements: 1.3, 1.4, 5.1, 6.2, 7.1_
-  - [ ] 7.3 Add policy endpoints: get, reload, replace (validated)
+  - [x] 7.3 Add policy endpoints: get, reload, replace (validated)
     - _Requirements: 4.5, 4.6_
-  - [ ] 7.4 Add the WebSocket `/ws` event stream with optional `run_id` filter
+  - [x] 7.4 Add the WebSocket `/ws` event stream with optional `run_id` filter
     - _Requirements: 3.2_
-  - [ ] 7.5 Write API tests, including auth rejection
+  - [x] 7.5 Write API tests, including auth rejection
     - _Requirements: 9.1_
 
 - [ ] 8. Implement the backend entrypoint
