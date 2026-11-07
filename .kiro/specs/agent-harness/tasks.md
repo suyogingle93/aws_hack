@@ -69,7 +69,7 @@ Ordering goal: get the thin demo path (launch, proxy, block, stop) working first
   - [x] 7.5 Write API tests, including auth rejection
     - _Requirements: 9.1_
 
-- [ ] 8. Implement the backend entrypoint
+- [x] 8. Implement the backend entrypoint
   - Start the mitmproxy `DumpMaster` and uvicorn on the same asyncio loop, print the operator token once, and expose the mitmproxy CA path
   - Add a policy file watcher for hot reload
   - _Requirements: 2.1, 4.5, 9.2_
