@@ -28,6 +28,8 @@ BLOCKED_MODEL = os.getenv("BEDROCK_BLOCKED_MODEL_ID", "amazon.titan-text-lite-v1
 PAUSE = float(os.getenv("DEMO_PAUSE", "2"))
 # Set when no AWS credentials are available; Bedrock steps are skipped instead of erroring.
 SKIP_BEDROCK = os.getenv("DEMO_SKIP_BEDROCK") == "1"
+# Stream the approved model's answer token by token (converse_stream) through the gateway.
+STREAM = os.getenv("DEMO_STREAM", "1") != "0"
 
 # boto3 honors HTTPS_PROXY / AWS_CA_BUNDLE from the environment automatically.
 client = boto3.client(
@@ -45,9 +47,25 @@ def step(msg: str) -> None:
     time.sleep(PAUSE)
 
 
-def ask_bedrock(model_id: str, prompt: str) -> None:
+def ask_bedrock(model_id: str, prompt: str, stream: bool = False) -> None:
     if SKIP_BEDROCK:
         print(f"[bedrock:{model_id}] skipped (DEMO_SKIP_BEDROCK=1)", flush=True)
+        return
+    if stream:
+        try:
+            resp = client.converse_stream(
+                modelId=model_id,
+                messages=[{"role": "user", "content": [{"text": prompt}]}],
+                inferenceConfig={"maxTokens": 256, "temperature": 0.5, "topP": 0.9},
+            )
+            print(f"[bedrock:{model_id}] ", end="", flush=True)
+            for chunk in resp["stream"]:
+                text = chunk.get("contentBlockDelta", {}).get("delta", {}).get("text")
+                if text:
+                    print(text, end="", flush=True)
+            print(flush=True)
+        except Exception as e:  # noqa: BLE001
+            print(f"\n[bedrock:{model_id}] ERROR {type(e).__name__}: {e}", flush=True)
         return
     try:
         resp = client.converse(
@@ -72,7 +90,7 @@ def http_get(url: str) -> None:
 
 def main() -> int:
     step("1. Ask the approved Bedrock model (should be ALLOWED)")
-    ask_bedrock(ALLOWED_MODEL, "In one sentence, what is AWS?")
+    ask_bedrock(ALLOWED_MODEL, "In two sentences, why should companies monitor what their AI agents do?", stream=STREAM)
 
     step("2. Read from GitHub (should be ALLOWED)")
     http_get("https://api.github.com/zen")

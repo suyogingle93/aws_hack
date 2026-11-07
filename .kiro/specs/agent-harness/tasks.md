@@ -110,7 +110,7 @@ Ordering goal: get the thin demo path (launch, proxy, block, stop) working first
     - _Requirements: 7.2, 3.3_
 
 - [ ] 13. Add AWS integrations
-  - [ ] 13.1 Implement the DynamoDB `AuditStore` (pk `run_id`, sk `ts#event_id`) and select it by config, falling back to SQLite
+  - [x] 13.1 Implement the DynamoDB `AuditStore` (pk `run_id`, sk `ts#event_id`) and select it by config, falling back to SQLite
     - _Requirements: 6.4_
   - [ ] 13.2 Confirm Bedrock works through the proxy
     - Verify model access in the Bedrock console (Model catalog, region us-east-1) and copy the inference profile ID if one is shown
@@ -119,7 +119,7 @@ Ordering goal: get the thin demo path (launch, proxy, block, stop) working first
     - _Requirements: 8.1, 4.1, 4.4_
   - [x] 13.2a Extend redaction to mask `X-Amz-Security-Token` and SigV4 signatures
     - _Requirements: 6.3, 9.3_
-  - [ ] 13.3 Emit CloudWatch metrics (allowed, blocked, stops) when configured
+  - [x] 13.3 Emit CloudWatch metrics (allowed, blocked, stops) when configured
     - _Requirements: 6.1_
   - [ ] 13.4 Stretch: deploy the backend to ECS Fargate or EC2 and document the architecture
     - _Requirements: 8.3_

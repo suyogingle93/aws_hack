@@ -319,6 +319,51 @@ async def test_upstream_connection_failure_is_logged_as_502(env):
     assert "upstream error" in request_events(evs)[-1].reason
 
 
+# --- streaming (Bedrock converse_stream) -----------------------------------------
+
+class StreamHandler(BaseHTTPRequestHandler):
+    """Sends one chunk, then waits until the client confirms it arrived before finishing."""
+
+    protocol_version = "HTTP/1.1"
+
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-Type", "application/vnd.amazon.eventstream")
+        self.send_header("Transfer-Encoding", "chunked")
+        self.end_headers()
+        for chunk, wait in ((b"first-token", True), (b"rest", False)):
+            self.wfile.write(f"{len(chunk):x}\r\n".encode() + chunk + b"\r\n")
+            self.wfile.flush()
+            if wait:
+                self.server.client_got_first_chunk_in_time = self.server.gate.wait(5)
+        self.wfile.write(b"0\r\n\r\n")
+        self.wfile.flush()
+
+    def log_message(self, *a):
+        pass
+
+
+async def test_model_token_streams_are_not_buffered(env):
+    server = ThreadingHTTPServer(("127.0.0.1", 0), StreamHandler)
+    server.gate = threading.Event()
+    server.client_got_first_chunk_in_time = None
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    rec, token = env.register()
+    try:
+        async with env.client(rec.id, token) as c:
+            async with c.stream("GET", f"http://127.0.0.1:{server.server_port}/ok/stream") as r:
+                chunks = r.aiter_raw()
+                first = await asyncio.wait_for(chunks.__anext__(), 4)
+                server.gate.set()  # only reachable if the proxy forwarded chunk 1 early
+                rest = b"".join([c async for c in chunks])
+        assert first.startswith(b"first-token") and (first + rest).endswith(b"rest")
+        # If the gateway buffered the response, chunk 1 would only arrive after the server
+        # gave up waiting, and this would be False.
+        assert server.client_got_first_chunk_in_time is True
+    finally:
+        server.shutdown()
+
+
 # --- redaction in emitted events -------------------------------------------------
 
 async def test_emitted_events_do_not_contain_secrets(env):

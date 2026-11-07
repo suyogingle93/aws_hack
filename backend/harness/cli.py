@@ -98,22 +98,57 @@ def serve(
     proxy_port: int = typer.Option(8080, help="Port for the gateway proxy."),
     api_port: int = typer.Option(8000, help="Port for the control API."),
     home: Path = typer.Option(None, help="State directory (default: ~/.agent-harness)."),
+    dynamodb_table: Optional[str] = typer.Option(
+        None, envvar="HARNESS_DYNAMODB_TABLE", help="Mirror the audit log to this DynamoDB table."
+    ),
+    cloudwatch_namespace: Optional[str] = typer.Option(
+        None, envvar="HARNESS_CLOUDWATCH_NAMESPACE", help="Publish metrics to CloudWatch under this namespace."
+    ),
+    aws_region: Optional[str] = typer.Option(None, envvar="AWS_REGION", help="AWS region (default us-east-1)."),
+    retention_days: Optional[int] = typer.Option(None, help="Expire DynamoDB audit items after N days."),
+    metrics_interval: float = typer.Option(60.0, help="Seconds between CloudWatch publishes."),
 ) -> None:
     """Start the gateway and control API."""
     from .main import DEFAULT_HOME, DEFAULT_POLICY, Settings, serve as serve_backend
 
+    uses_aws = bool(dynamodb_table or cloudwatch_namespace)
     settings = Settings(
         policy_path=policy or DEFAULT_POLICY,
         home=home or DEFAULT_HOME,
         proxy_port=proxy_port,
         api_port=api_port,
         operator_token=os.environ.get("HARNESS_OPERATOR_TOKEN"),
+        dynamodb_table=dynamodb_table,
+        cloudwatch_namespace=cloudwatch_namespace,
+        aws_region=aws_region or ("us-east-1" if uses_aws else None),
+        retention_days=retention_days,
+        metrics_interval=metrics_interval,
     )
     try:
         asyncio.run(serve_backend(settings))
     except Exception as e:  # startup errors: bad policy, port in use...
         typer.secho(f"error: {e}", fg=typer.colors.RED, err=True)
         raise typer.Exit(1) from None
+
+
+@app.command("aws-setup")
+def aws_setup(
+    table: str = typer.Option("agent-harness-audit", help="DynamoDB table name."),
+    region: str = typer.Option("us-east-1", envvar="AWS_REGION", help="AWS region."),
+) -> None:
+    """Create the DynamoDB audit table (on-demand billing, TTL on expires_at). Safe to re-run."""
+    from botocore.exceptions import BotoCoreError, ClientError
+
+    from .store.dynamodb import ensure_table
+
+    try:
+        created = ensure_table(table, region=region)
+    except (BotoCoreError, ClientError) as e:
+        typer.secho(f"error: {e}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(1) from None
+    verb = "created" if created else "already exists:"
+    typer.secho(f"DynamoDB table {verb} {table} ({region})", fg=typer.colors.GREEN)
+    typer.echo(f"Start the harness with:  harness serve --dynamodb-table {table} --cloudwatch-namespace AgentHarness")
 
 
 @app.command()

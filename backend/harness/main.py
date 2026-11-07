@@ -23,9 +23,12 @@ from mitmproxy.tools.dump import DumpMaster
 from .api import ApiConfig, create_app
 from .events import EventBus
 from .gateway import HarnessGateway
+from .metrics import CloudWatchMetrics
 from .policy import PolicyEngine
 from .runs import RunManager
-from .store import SqliteStore, StoreWriter
+from .store import AuditStore, SqliteStore, StoreWriter
+from .store.dynamodb import DynamoDBStore
+from .store.mirror import MirroredStore
 from .watcher import watch_policy
 
 log = logging.getLogger("harness")
@@ -47,6 +50,12 @@ class Settings:
     operator_token: str | None = None  # default: generated
     watch_interval: float = 1.0
     stop_runs_on_shutdown: bool = True
+    # AWS (all optional; nothing touches AWS unless one of these is set)
+    dynamodb_table: str | None = None  # mirror the audit log to this DynamoDB table
+    aws_region: str | None = None  # default: the usual boto3 resolution (AWS_REGION, profile...)
+    retention_days: int | None = None  # DynamoDB TTL for audit items
+    cloudwatch_namespace: str | None = None  # publish metrics under this namespace
+    metrics_interval: float = 60.0
     cors_origins: tuple[str, ...] = field(
         default_factory=lambda: ("http://localhost:5173", "http://127.0.0.1:5173")
     )
@@ -69,19 +78,44 @@ class Backend:
         self.api_port = 0
         self.ca_path: Path | None = None
         self.token_file: Path | None = None
+        self.metrics: CloudWatchMetrics | None = None
         self._tasks: list[asyncio.Task] = []
         self._started = False
+
+    async def _open_store(self) -> AuditStore:
+        s = self.settings
+        local = SqliteStore(str(s.db_path or s.home / "harness.sqlite3"))
+        if not s.dynamodb_table:
+            return local
+        remote = DynamoDBStore(s.dynamodb_table, region=s.aws_region, retention_days=s.retention_days)
+        try:
+            await asyncio.to_thread(remote.check)  # fail fast: missing table, bad credentials
+        except Exception:
+            local.close()
+            raise
+        return MirroredStore(local, remote)
+
+    @property
+    def audit_description(self) -> str:
+        s = self.settings
+        local = str(s.db_path or s.home / "harness.sqlite3")
+        return f"{local} + DynamoDB table '{s.dynamodb_table}'" if s.dynamodb_table else local
 
     async def start(self) -> None:
         s = self.settings
         s.home.mkdir(parents=True, exist_ok=True, mode=0o700)
 
         self.engine = PolicyEngine.from_file(s.policy_path)  # fail fast on a bad policy
-        self.store = SqliteStore(str(s.db_path or s.home / "harness.sqlite3"))
+        self.store = await self._open_store()
         self.runs = RunManager(self.bus, self.store, on_run_end=self.engine.forget_run)
         self.gateway = HarnessGateway(self.engine, self.runs, self.bus)
         self.writer = StoreWriter(self.bus, self.store)
         self.writer.start()
+        if s.cloudwatch_namespace:
+            self.metrics = CloudWatchMetrics(
+                self.bus, s.cloudwatch_namespace, region=s.aws_region, interval=s.metrics_interval
+            )
+            self.metrics.start()
 
         # --- proxy ---
         confdir = s.home / "mitmproxy"
@@ -162,8 +196,13 @@ class Backend:
         self._master.shutdown()
         with contextlib.suppress(Exception):
             await asyncio.wait_for(self._master_task, 5)
+        await self._close_storage()
+
+    async def _close_storage(self) -> None:
         await self.writer.stop()
-        self.store.close()
+        if self.metrics:
+            await self.metrics.stop()  # final flush
+        await asyncio.to_thread(self.store.close)  # may wait for the DynamoDB mirror to drain
 
     async def stop(self) -> None:
         if not self._started:
@@ -184,8 +223,7 @@ class Backend:
         self._master.shutdown()
         with contextlib.suppress(Exception):
             await asyncio.wait_for(self._master_task, 10)
-        await self.writer.stop()
-        self.store.close()
+        await self._close_storage()
         if self.token_file:
             with contextlib.suppress(OSError):
                 self.token_file.unlink()
@@ -194,15 +232,19 @@ class Backend:
 async def serve(settings: Settings) -> None:
     backend = Backend(settings)
     await backend.start()
-    print(
-        "\nAgent Harness is running\n"
-        f"  proxy:      http://{settings.proxy_host}:{backend.proxy_port}\n"
-        f"  control API: http://{settings.api_host}:{backend.api_port}\n"
-        f"  policy:     {settings.policy_path}\n"
-        f"  CA cert:    {backend.ca_path}\n"
-        f"  operator token (also in {backend.token_file}):\n    {backend.operator_token}\n",
-        flush=True,
-    )
+    lines = [
+        "",
+        "Agent Harness is running",
+        f"  proxy:       http://{settings.proxy_host}:{backend.proxy_port}",
+        f"  control API: http://{settings.api_host}:{backend.api_port}",
+        f"  policy:      {settings.policy_path}",
+        f"  CA cert:     {backend.ca_path}",
+        f"  audit log:   {backend.audit_description}",
+    ]
+    if settings.cloudwatch_namespace:
+        lines.append(f"  metrics:     CloudWatch namespace '{settings.cloudwatch_namespace}'")
+    lines += [f"  operator token (also in {backend.token_file}):", f"    {backend.operator_token}", ""]
+    print("\n".join(lines), flush=True)
     stop = asyncio.Event()
     loop = asyncio.get_running_loop()
     for sig in (signal.SIGINT, signal.SIGTERM):
@@ -220,11 +262,17 @@ def parse_args(argv: list[str] | None = None) -> Settings:
     p.add_argument("--proxy-port", type=int, default=8080)
     p.add_argument("--api-host", default="127.0.0.1")
     p.add_argument("--api-port", type=int, default=8000)
+    p.add_argument("--dynamodb-table", default=os.environ.get("HARNESS_DYNAMODB_TABLE"))
+    p.add_argument("--cloudwatch-namespace", default=os.environ.get("HARNESS_CLOUDWATCH_NAMESPACE"))
+    p.add_argument("--aws-region", default=None)
+    p.add_argument("--retention-days", type=int, default=None)
     a = p.parse_args(argv)
     return Settings(
         policy_path=a.policy, home=a.home, proxy_host=a.proxy_host, proxy_port=a.proxy_port,
         api_host=a.api_host, api_port=a.api_port,
         operator_token=os.environ.get("HARNESS_OPERATOR_TOKEN"),
+        dynamodb_table=a.dynamodb_table, cloudwatch_namespace=a.cloudwatch_namespace,
+        aws_region=a.aws_region, retention_days=a.retention_days,
     )
 
 

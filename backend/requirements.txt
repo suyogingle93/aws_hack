@@ -9,5 +9,7 @@ websockets==17.4
 typer==0.28.0
 mitmproxy==12.3.1
 cryptography==50.0.2
+# tests only
 pytest==9.2.0
 pytest-asyncio==1.4.1.post1
+moto[dynamodb,cloudwatch]==5.2.5
