@@ -21,18 +21,18 @@ Ordering goal: get the thin demo path (launch, proxy, block, stop) working first
   - [x] 2.6 Create `policies/demo.yaml` with allow rules for Bedrock/GitHub and a deny rule with `terminate_on_violation`
     - _Requirements: 8.2_
 
-- [ ] 3. Implement redaction and MCP parsing
-  - [ ] 3.1 Build `redact.py` for sensitive headers and token-like patterns, with tests
+- [x] 3. Implement redaction and MCP parsing
+  - [x] 3.1 Build `redact.py` for sensitive headers and token-like patterns, with tests
     - _Requirements: 6.3, 9.3_
-  - [ ] 3.2 Build `mcp.py` to extract tool name and arguments from JSON-RPC `tools/call`, including batches, with tests
+  - [x] 3.2 Build `mcp.py` to extract tool name and arguments from JSON-RPC `tools/call`, including batches, with tests
     - _Requirements: 2.5_
 
-- [ ] 4. Implement the event bus and storage
-  - [ ] 4.1 Define the `Event` model and an asyncio `EventBus` with bounded per-subscriber queues
+- [x] 4. Implement the event bus and storage
+  - [x] 4.1 Define the `Event` model and an asyncio `EventBus` with bounded per-subscriber queues
     - _Requirements: 3.1, 3.2_
-  - [ ] 4.2 Define the `AuditStore` interface and the SQLite implementation (events and runs, query by run and time range)
+  - [x] 4.2 Define the `AuditStore` interface and the SQLite implementation (events and runs, query by run and time range)
     - _Requirements: 6.1, 6.2, 6.4_
-  - [ ] 4.3 Wire the bus to the store through a background writer that retries on failure
+  - [x] 4.3 Wire the bus to the store through a background writer that retries on failure
     - _Requirements: 6.1_
 
 - [ ] 5. Implement the run manager
