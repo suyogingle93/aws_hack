@@ -2,7 +2,7 @@
 
 Ordering goal: get the thin demo path (launch, proxy, block, stop) working first, then add the dashboard, persistence, and polish. Each task builds on the previous ones.
 
-- [ ] 1. Scaffold the project
+- [x] 1. Scaffold the project
   - Create `backend/` (Python 3.11+, `pyproject.toml`, deps: mitmproxy, fastapi, uvicorn, typer, pydantic, pyyaml, boto3, httpx, pytest) and `dashboard/` (Vite + React + TypeScript)
   - Add a `Makefile` with `dev`, `test`, `demo` targets and a `.gitignore`
   - _Requirements: 8.3_
@@ -88,25 +88,25 @@ Ordering goal: get the thin demo path (launch, proxy, block, stop) working first
   - Run the stack locally, launch a stub agent, confirm traffic is logged, a disallowed request is blocked, and stop kills the agent. Ask the user if questions arise.
 
 - [ ] 11. Build the demo agent
-  - [ ] 11.1 Write `demo/demo_agent.py`: calls Bedrock via boto3 `converse`/`converse_stream` in `us-east-1` using env credentials and `BEDROCK_MODEL_ID` (allowed), GitHub (allowed), then a disallowed action (a different Bedrock model, a non-allowlisted host, and/or MCP `delete_*` tool call), with pauses so the demo is readable
+  - [x] 11.1 Write `demo/demo_agent.py`: calls Bedrock via boto3 `converse`/`converse_stream` in `us-east-1` using env credentials and `BEDROCK_MODEL_ID` (allowed), GitHub (allowed), then a disallowed action (a different Bedrock model, a non-allowlisted host, and/or MCP `delete_*` tool call), with pauses so the demo is readable
     - _Requirements: 8.1_
   - [ ] 11.2 Add an optional mode that runs Kiro CLI as the managed agent, documenting any extra env/CA setup
     - _Requirements: 8.1_
 
 - [ ] 12. Build the React dashboard
-  - [ ] 12.1 Set up the API client, operator token entry, and the `useEventStream` hook with reconnect
+  - [x] 12.1 Set up the API client, operator token entry, and the `useEventStream` hook with reconnect
     - _Requirements: 3.2, 7.4_
-  - [ ] 12.2 Runs sidebar with status, command, allowed/blocked counters, and a Stop button
+  - [x] 12.2 Runs sidebar with status, command, allowed/blocked counters, and a Stop button
     - _Requirements: 7.1, 7.2, 5.1_
-  - [ ] 12.3 Live traffic table with color and icon/text status, decision filter, auto-scroll toggle
+  - [x] 12.3 Live traffic table with color and icon/text status, decision filter, auto-scroll toggle
     - _Requirements: 3.2, 3.3_
-  - [ ] 12.4 Event detail drawer with redacted headers and matched rule
+  - [x] 12.4 Event detail drawer with redacted headers and matched rule
     - _Requirements: 3.4_
-  - [ ] 12.5 Policy panel with the blocking rule highlighted and a reload button
+  - [x] 12.5 Policy panel with the blocking rule highlighted and a reload button
     - _Requirements: 7.3, 4.5_
   - [ ] 12.6 Accessibility pass: semantic table, keyboard navigation, labels, contrast
     - _Requirements: 7.5_
-  - [ ] 12.7 Component tests for the event table and stop button
+  - [x] 12.7 Component tests for the event table and stop button
     - _Requirements: 7.2, 3.3_
 
 - [ ] 13. Add AWS integrations
@@ -117,7 +117,7 @@ Ordering goal: get the thin demo path (launch, proxy, block, stop) working first
     - Run a standalone `converse` call first (no proxy), then through the harness; confirm the allow rule and that `converse_stream` is not buffered
     - Add a policy rule that allows only the chosen model path and confirm another model is blocked with a 403
     - _Requirements: 8.1, 4.1, 4.4_
-  - [ ] 13.2a Extend redaction to mask `X-Amz-Security-Token` and SigV4 signatures
+  - [x] 13.2a Extend redaction to mask `X-Amz-Security-Token` and SigV4 signatures
     - _Requirements: 6.3, 9.3_
   - [ ] 13.3 Emit CloudWatch metrics (allowed, blocked, stops) when configured
     - _Requirements: 6.1_

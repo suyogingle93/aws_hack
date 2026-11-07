@@ -1,12 +1,21 @@
-.PHONY: setup test serve demo-agent demo checkpoint
+.PHONY: setup test serve demo-agent demo checkpoint dashboard
+
+# Separate npm cache: works even when ~/.npm contains root-owned files.
+NPM_CACHE ?= $(HOME)/.cache/npm-harness
 
 setup:
 	python3 -m venv venv
 	./venv/bin/pip install -r backend/requirements.txt
 	./venv/bin/pip install -e backend
+	cd dashboard && npm install --cache "$(NPM_CACHE)" --no-fund --no-audit
 
 test:
 	cd backend && ../venv/bin/python -m pytest
+	cd dashboard && npm test
+
+# Dashboard dev server on http://localhost:5173 (needs `make serve` running).
+dashboard:
+	cd dashboard && npm run dev
 
 # Start the gateway + control API (leave running in its own terminal).
 serve:
