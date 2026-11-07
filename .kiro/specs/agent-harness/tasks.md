@@ -35,12 +35,12 @@ Ordering goal: get the thin demo path (launch, proxy, block, stop) working first
   - [x] 4.3 Wire the bus to the store through a background writer that retries on failure
     - _Requirements: 6.1_
 
-- [ ] 5. Implement the run manager
-  - [ ] 5.1 Create the `Run` model, token generation (hash only stored), constant-time verification
+- [x] 5. Implement the run manager
+  - [x] 5.1 Create the `Run` model, token generation (hash only stored), constant-time verification
     - _Requirements: 2.2, 9.1_
-  - [ ] 5.2 Implement `stop()`: mark stopped, revoke token, SIGTERM then SIGKILL on the process group, publish a stop event
+  - [x] 5.2 Implement `stop()`: mark stopped, revoke token, SIGTERM then SIGKILL on the process group, publish a stop event
     - _Requirements: 5.1, 5.2, 5.3, 5.5_
-  - [ ] 5.3 Write tests that stop a real child process tree and assert it exits within 3 seconds
+  - [x] 5.3 Write tests that stop a real child process tree and assert it exits within 3 seconds
     - _Requirements: 5.1, 5.5_
 
 - [ ] 6. Implement the gateway
