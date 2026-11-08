@@ -1,4 +1,4 @@
-.PHONY: setup test serve serve-aws aws-setup demo-agent demo checkpoint dashboard
+.PHONY: setup test serve serve-aws aws-setup demo-agent demo checkpoint dashboard playground
 
 AUDIT_TABLE ?= agent-harness-audit
 METRICS_NAMESPACE ?= AgentHarness
@@ -44,3 +44,7 @@ demo:
 # Uses its own ports and state, so it can run alongside `make serve`.
 checkpoint:
 	./venv/bin/python backend/demo/checkpoint.py
+
+# Interactive: type your own requests and see the harness decide (needs `make serve` running).
+playground:
+	./venv/bin/harness run -- ./venv/bin/python backend/demo/playground.py
