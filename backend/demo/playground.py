@@ -140,7 +140,7 @@ def main() -> int:
         except EOFError:
             return 0
         if not interactive:
-            print(f"\nharness> {line}")
+            print(f"\nharness> {line}", flush=True)  # survive being killed mid-command
         if not handle(line):
             return 0
 
