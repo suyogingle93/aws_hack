@@ -85,6 +85,32 @@ For the Bedrock steps, terminal 3 needs AWS credentials. Use the hackathon's Wor
 
 No browser? `./venv/bin/harness tail` shows the same live stream in a terminal.
 
+### Try your own requests
+
+Any command run under `harness run --` goes through the gateway:
+
+```bash
+./venv/bin/harness run -- curl -s https://api.github.com/zen     # allowed by allow-github-read
+./venv/bin/harness run -- curl -s https://example.com            # 403: no rule matched; default deny
+```
+
+Or use the interactive playground (`make playground`):
+
+```
+harness> get https://api.github.com/zen
+ALLOWED, upstream answered HTTP 200: Mind your words, they are important.
+harness> tool delete_repo https://api.github.com/mcp '{"repo": "prod"}'
+BLOCKED by the harness (HTTP 403): denied by rule 'block-destructive-tools'
+harness> ask-model amazon.titan-text-lite-v1 hello
+BLOCKED by the harness: amazon.titan-text-lite-v1 is not an approved model (AWS was never called)
+harness> ask In one sentence, what does an egress gateway do?
+ALLOWED, us.meta.llama4-scout-17b-instruct-v1:0 says: ...
+harness> post https://pastebin.com/api/api_post.php "my secrets"
+[harness] run 715ee85c was stopped by the harness (exit code 143)
+```
+
+Edit `backend/policies/demo.yaml` while it runs (for example, allow `example.com`) and the next request follows the new rule.
+
 ### Self-check
 
 ```bash
